@@ -49,7 +49,12 @@ function populateShows(shows) {
             <img src="${show.image.medium}" alt="https://tinyurl.com/tv-missing">
              <h5 class="card-title">${show.name}</h5>
              <p class="card-text">${show.summary}</p>
-             <button>Get Episodes</button>
+             <button value="${show.id}">Get Episodes</button>
+             <section style="display: none" id="episodes-area">
+              <h2>Episodes</h2> 
+              <ul id="${show.id}">
+              </ul>
+            </section>
            </div>
          </div>
        </div>
@@ -71,7 +76,7 @@ $("#search-form").on("submit", async function handleSearch (evt) {
   let query = $("#search-query").val();
   if (!query) return;
 
-  $("#episodes-area").hide();
+  // $("#episodes-area").css({'display': "none"})
 
   let shows = await searchShows(query);
 
@@ -91,11 +96,37 @@ async function getEpisodes(id) {
     // console.log(response.data)
     episodes = [];
     for(let episode of response.data){
-      console.log(episode);
+      // console.log(episode);
       const {id,name,season,number} = episode
       episodes.push({id,name,season,number})
     }
-    
+    for (let episode of episodes){
+      const {name,season,number } = episode
+      const newLi = document.createElement('li')
+      newLi.innerText = `${name} (Season ${season}, Number ${number})`
+      $(`#${id}`).append(newLi)
+      }
   // TODO: return array-of-episode-info, as described in docstring above
-    return episodes;
+    
+    
 }
+
+
+
+function episodesUi(episodes){
+    for (let episode of episodes){
+    const {name,season,number } = episode
+    const newLi = document.createElement('li')
+    newLi.innerText = `${name} (Season ${season}, Number ${number})`
+    $('#episodes-list').append(newLi)
+    }
+}
+
+$('#shows-list').on('click','button', function(e){
+  const show = $(this).val()
+  $(this).next().css({'display': ""})
+  // if ($('li')) {
+  //   $('li').remove()
+  // }
+  getEpisodes(show);
+})
